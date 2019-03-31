@@ -12,7 +12,7 @@ import spark.Route;
  * BotHandler
  */
 public abstract class BotHandler implements Route {
-    
+
     @Override
     public Object handle(Request request, Response response) {
         Update update = BotUtils.parseUpdate(request.body());
@@ -34,9 +34,9 @@ public abstract class BotHandler implements Route {
         return false;
     }
 
-    abstract void onWebhookUpdate(Update update);
+    public abstract void onWebhookUpdate(Update update);
 
-    abstract String getToken();
+    public abstract String getToken();
 
-    abstract TelegramBot getBot();
+    public abstract TelegramBot getBot();
 }

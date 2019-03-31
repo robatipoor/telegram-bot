@@ -1,7 +1,6 @@
-package org.robatipoor;
+package org.robatipoor.removelink;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendAudio;
@@ -11,6 +10,7 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
 import com.pengrad.telegrambot.request.SendVoice;
 
+import org.robatipoor.BotHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,17 +19,17 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoveLinkTelegramBot extends BotHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RemoveLinkTelegramBot.class);
     private static final String TOKEN = System.getenv("TELEGRAM_TOKEN_QUEEN");
     private final TelegramBot bot = new TelegramBot(TOKEN);
 
     @Override
-    void onWebhookUpdate(Update update) {
+    public void onWebhookUpdate(Update update) {
         Long chatId = update.message().chat().id();
         LOG.info("Get Update Chat ID = {}", chatId);
         String caption = update.message().caption();
         if (caption != null) {
-            caption = removeLinkText(caption);
+            caption = RemoveLink.remove(caption);
         }
         if (update.message().video() != null) {
             var fileId = update.message().video().fileId();
@@ -56,35 +56,17 @@ public class RemoveLinkTelegramBot extends BotHandler {
         } else if (update.message().text() != null) {
             var text = update.message().text();
             LOG.info("Get Text {} ", text);
-            bot.execute(new SendMessage(chatId, removeLinkText(text)));
+            bot.execute(new SendMessage(chatId, RemoveLink.remove(text)));
         }
     }
 
     @Override
-    String getToken() {
+    public String getToken() {
         return TOKEN;
     }
 
     @Override
-    TelegramBot getBot() {
-        return bot;
-    }
-
-    private static String removeLinkText(String text) {
-        String result = text;
-        String[] regexs = { "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
-                "\\b(www?|WWW|WWw).[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
-                "\\b(telegram\\.me)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
-                "\\b(t\\.me/)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
-                "\\b(\\@)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]", "(@)\\w+" };
-
-        for (String re : regexs) {
-            Matcher match = Pattern.compile(re).matcher(result);
-            while (match.find()) {
-                result = result.replace(match.group(), "");
-                LOG.info("Remove {} ", match.group());
-            }
-        }
-        return result;
+    public TelegramBot getBot() {
+        return this.bot;
     }
 }
