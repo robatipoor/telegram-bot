@@ -9,6 +9,8 @@ import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
+import com.pengrad.telegrambot.request.SendVoice;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,10 @@ public class RemoveLinkTelegramBot extends BotHandler {
             var fileId = update.message().audio().fileId();
             LOG.info("Get Audio ID {}", fileId);
             bot.execute(new SendAudio(chatId, fileId).caption(caption));
+        } else if (update.message().voice() != null) {
+            var fileId = update.message().voice().fileId();
+            LOG.info("Get Voice ID {}", fileId);
+            bot.execute(new SendVoice(chatId, fileId).caption(caption));
         } else if (update.message().text() != null) {
             var text = update.message().text();
             LOG.info("Get Text {} ", text);
