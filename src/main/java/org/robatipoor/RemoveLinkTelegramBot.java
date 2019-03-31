@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendAudio;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
@@ -24,8 +25,10 @@ public class RemoveLinkTelegramBot extends BotHandler {
     void onWebhookUpdate(Update update) {
         Long chatId = update.message().chat().id();
         LOG.info("Get Update Chat ID = {}", chatId);
-        var caption = update.message().caption();
-        caption = removeLinkText(caption);
+        String caption = update.message().caption();
+        if (caption != null) {
+            caption = removeLinkText(caption);
+        }
         if (update.message().video() != null) {
             var fileId = update.message().video().fileId();
             LOG.info("Get Video ID {}", fileId);
@@ -40,6 +43,10 @@ public class RemoveLinkTelegramBot extends BotHandler {
                 LOG.info("Get Photo ID {} ", fileId);
                 bot.execute(new SendPhoto(chatId, fileId).caption(caption));
             }
+        } else if (update.message().audio() != null) {
+            var fileId = update.message().audio().fileId();
+            LOG.info("Get Audio ID {}", fileId);
+            bot.execute(new SendAudio(chatId, fileId).caption(caption));
         } else if (update.message().text() != null) {
             var text = update.message().text();
             LOG.info("Get Text {} ", text);
